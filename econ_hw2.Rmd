@@ -1,0 +1,83 @@
+---
+title: "Econ 204: HW 2"
+author: "Sydney Mayes"
+date: "2023-04-29"
+output:  
+  html_document:
+    theme: simplex
+    code_folding: hide
+---
+
+```{r setup,  include = TRUE, echo=TRUE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, results = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(equatiomatic)
+```
+
+```{r}
+
+# In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes:
+# ● Current (i.e. baseline) emission for each campus are: UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons.
+# ● Prices are in $/ton and quantities are in tons of CO2.
+# ● Before opening R, I recommend drawing graphs by hand to make sure you know what you want to do
+
+# Clean and format dataset
+carbon_uc <- read_csv(here('data', 'CarbonUC.csv')) %>% 
+  clean_names()
+
+long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to = 'marginal_cost')
+
+```
+
+
+#### Question 1
+
+```{r}
+# For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
+
+# Plotting the marginal abatement costs data for each school
+ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
+  geom_point() +
+  facet_wrap(~uc, ncol = 2) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
+
+# Estimating linear regression models with zero intercept for each UC
+# UCSB
+ucsb_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucsb'))
+#p = ucsb_model$coefficients*q
+#extract_eq(ucsb_model, use_coefs = TRUE, coef_digits = 5)
+
+# UCLA
+ucla_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucla'))
+
+# UCI
+uci_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uci'))
+
+# UCD
+ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd'))
+
+
+```
+
+##### UCSB: `r equatiomatic::extract_eq(ucsb_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCLA:  `r equatiomatic::extract_eq(ucla_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCI:  `r equatiomatic::extract_eq(uci_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCD:  `r equatiomatic::extract_eq(ucd_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+
+
+#### Question 2
+```{r}
+# Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
+
+ucsb_demand <- function(E) {
+  p = 
+}
+  
+```
+
+
+
