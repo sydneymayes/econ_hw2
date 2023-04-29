@@ -297,7 +297,7 @@ The central campus decides to go with the “Cap with Trade” approach (Scenari
 ```{r}
 p_star_new <- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)$y
 
-# Cost philanthropist must pay. 
+# Cost for philanthropist to buy/retire permits:
 # 76.91305 * 50000 = 3845652
 ```
 
