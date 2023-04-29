@@ -16,6 +16,7 @@ library(janitor)
 library(equatiomatic)
 ```
 
+# {.tabset}
 
 ```{r}
 
@@ -33,7 +34,7 @@ long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to =
 ```
 
 
-#### Question 1
+## Question 1
 For each campus, plot the marginal abatement cost data and estimate a linear regression model with
 zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
 cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
@@ -90,7 +91,7 @@ ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
 ##### UCD:  `r equatiomatic::extract_eq(ucd_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
 
 
-#### Question 2
+## Question 2
 
 Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
 
@@ -152,7 +153,7 @@ gg_demand
 ```
 Based on the graph, UCD would pay the most for the first ton emitted.
 
-#### Question 3
+## Question 3
 Here you will analyze three alternative interventions for reducing carbon emissions across these four campuses. Please answer the questions about each intervention listed below.
 
 
@@ -290,7 +291,7 @@ UCLA will emit 162273.4	tons of carbon; they will buy 62273.4 permits
 UCI will emit 69351.19 tons of carbon; they will sell 30648.81 permits
 UCD will emit 139652.2 tons of carbon; they will buy 39652.2 permits
 
-#### Question 4:
+## Question 4:
 The central campus decides to go with the “Cap with Trade” approach (Scenario 3d above). An altruistic philanthropist buys 50,000 of the permits from the cap and trade market and retires them (i.e. not emit the carbon), so only 350,000 tons will be emitted. What is the new trading price among the four campuses? How much will it cost the philanthropist to buy and retire these permits?
 
 

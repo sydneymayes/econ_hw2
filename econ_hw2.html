@@ -388,17 +388,23 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "\e259";
+.tabset-dropdown > .nav-tabs > li.active:before {
+content: "";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "\e258";
-font-family: 'Glyphicons Halflings';
+content: "";
 border: none;
+}
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "";
+font-family: 'Glyphicons Halflings';
+display: inline-block;
+padding: 10px;
+border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -463,6 +469,8 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(equatiomatic)</code></pre>
+<div id="section" class="section level1 tabset">
+<h1 class="tabset"></h1>
 <pre class="r"><code># In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes:
 # ● Current (i.e. baseline) emission for each campus are: UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons.
 # ● Prices are in $/ton and quantities are in tons of CO2.
@@ -473,8 +481,8 @@ carbon_uc &lt;- read_csv(here(&#39;data&#39;, &#39;CarbonUC.csv&#39;)) %&gt;%
   clean_names()
 
 long_uc &lt;- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = &#39;uc&#39;, values_to = &#39;marginal_cost&#39;)</code></pre>
-<div id="question-1" class="section level4">
-<h4>Question 1</h4>
+<div id="question-1" class="section level2">
+<h2>Question 1</h2>
 <p>For each campus, plot the marginal abatement cost data and estimate a
 linear regression model with zero intercept. These estimated linear
 regressions will be your estimates of the marginal abatement cost curve
@@ -556,8 +564,8 @@ ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
 \]</span></h5>
 </div>
 </div>
-<div id="question-2" class="section level4">
-<h4>Question 2</h4>
+<div id="question-2" class="section level2">
+<h2>Question 2</h2>
 <p>Using your estimated marginal abatement cost curves, together with
 the baseline emissions, derive each campus’ demand curve for carbon. In
 other words, how much would each campus be willing to pay to emit the
@@ -619,8 +627,8 @@ gg_demand</code></pre>
 Based on the graph, UCD would pay the most for the first ton
 emitted.</p>
 </div>
-<div id="question-3" class="section level4">
-<h4>Question 3</h4>
+<div id="question-3" class="section level2">
+<h2>Question 3</h2>
 <p>Here you will analyze three alternative interventions for reducing
 carbon emissions across these four campuses. Please answer the questions
 about each intervention listed below.</p>
@@ -741,8 +749,8 @@ UCLA will emit 162273.4 tons of carbon; they will buy 62273.4 permits
 UCI will emit 69351.19 tons of carbon; they will sell 30648.81 permits
 UCD will emit 139652.2 tons of carbon; they will buy 39652.2 permits</p>
 </div>
-<div id="question-4" class="section level4">
-<h4>Question 4:</h4>
+<div id="question-4" class="section level2">
+<h2>Question 4:</h2>
 <p>The central campus decides to go with the “Cap with Trade” approach
 (Scenario 3d above). An altruistic philanthropist buys 50,000 of the
 permits from the cap and trade market and retires them (i.e. not emit
@@ -751,10 +759,11 @@ trading price among the four campuses? How much will it cost the
 philanthropist to buy and retire these permits?</p>
 <pre class="r"><code>p_star_new &lt;- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)$y
 
-# Cost philanthropist must pay. 
+# Cost for philanthropist to buy/retire permits:
 # 76.91305 * 50000 = 3845652</code></pre>
 <p>The new trading price is 76.91305 dollars. It will cost the
 philanthropist 3845652 dollars.</p>
+</div>
 </div>
 
 
