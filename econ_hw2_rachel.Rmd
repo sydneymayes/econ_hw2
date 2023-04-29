@@ -1,0 +1,312 @@
+---
+title: "Econ 204: HW 2"
+author: "Sydney Mayes, Olivia Somhegyi, Rachel Spellenberg"
+date: "2023-04-29"
+output:  
+  html_document:
+    theme: simplex
+    code_folding: hide
+---
+
+```{r setup,  include = TRUE, echo=TRUE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, results = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(equatiomatic)
+```
+
+
+```{r}
+
+# In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes:
+# ● Current (i.e. baseline) emission for each campus are: UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons.
+# ● Prices are in $/ton and quantities are in tons of CO2.
+# ● Before opening R, I recommend drawing graphs by hand to make sure you know what you want to do
+
+# Clean and format dataset
+carbon_uc <- read_csv(here('data', 'CarbonUC.csv')) %>% 
+  clean_names()
+
+long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to = 'marginal_cost')
+
+```
+
+
+#### Question 1
+For each campus, plot the marginal abatement cost data and estimate a linear regression model with
+zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
+cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
+for the marginal abatement cost curve for each campus.
+
+```{r}
+# For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
+
+# Estimating linear regression models with zero intercept for each UC
+# UCSB
+ucsb_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucsb'))
+ucsb_slope <- ucsb_model$coefficients
+#p = ucsb_model$coefficients*q
+#extract_eq(ucsb_model, use_coefs = TRUE, coef_digits = 5)
+# p = .001*q
+
+# UCLA
+ucla_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucla'))
+ucla_slope <- ucla_model$coefficients
+# ucla_model$coefficients
+# p = .0007*q
+
+# UCI
+uci_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uci'))
+uci_slope <- uci_model$coefficients
+# p = .002 *q
+
+# UCD
+ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd'))
+ucd_slope <- ucd_model$coefficients
+# p = .003 *q
+
+ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
+  geom_point() +
+  geom_abline(slope = ucsb_slope) +
+  geom_abline(slope = ucla_slope) +
+  geom_abline(slope = uci_slope) +
+  geom_abline(slope = ucd_slope) +
+  # facet_wrap(~uc, ncol = 2) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
+
+```
+
+##### UCSB: `r equatiomatic::extract_eq(ucsb_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCLA:  `r equatiomatic::extract_eq(ucla_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCI:  `r equatiomatic::extract_eq(uci_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+##### UCD:  `r equatiomatic::extract_eq(ucd_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
+
+
+#### Question 2
+Using your estimated marginal abatement cost curves, together with the baseline emissions, derive
+each campus’ demand curve for carbon. In other words, how much would each campus be willing to
+pay to emit the first ton of carbon, the second ton of carbon, etc. Plot each campus’ demand curve for
+emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon
+emissions.
+```{r}
+# Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
+
+### UC baseline emissions
+ucsb_base = 90000
+ucla_base = 250000
+uci_base = 100000
+ucd_base = 160000
+
+### e = emissions
+ucsb_price <- function(e) {
+  p = ucsb_slope*(ucsb_base - e)
+  return(p)
+}
+
+ucla_price <- function(e) {
+  p = ucla_slope*(ucla_base - e)
+  return(p)
+}
+
+uci_price <- function(e) {
+  p = uci_slope*(uci_base - e)
+  return(p)
+}
+
+ucd_price <- function(e) {
+  p = ucd_slope*(ucd_base - e)
+  return(p)
+}
+
+demand_df <- data.frame(e = seq(0,250000, length.out = 100)) %>% 
+  mutate(ucsb_cost = pmax(0, ucsb_price(e))) %>% 
+  mutate(ucla_cost = pmax(0, ucla_price(e))) %>% 
+  mutate(uci_cost = pmax(0, uci_price(e))) %>% 
+  mutate(ucd_cost = pmax(0, ucd_price(e)))
+
+demand_df_long <- pivot_longer(demand_df, cols = ucsb_cost:ucd_cost, 
+                               names_to = 'campus', values_to = 'marginal_wtp')
+
+  
+gg_demand <- ggplot(data = demand_df_long) +
+  geom_line(aes(x = e, y = marginal_wtp, col = campus))+
+  labs(x = 'Tons of Carbon Polluted', y = 'Price in dollars/ton of Carbon' ) +
+  scale_color_viridis_d() +
+  theme_bw()
+gg_demand 
+  
+```
+
+#### Question 3
+Here you will analyze three alternative interventions for reducing carbon emissions across these four
+campuses. Please answer the questions about each intervention listed below
+
+**3a. Intervention #1: Carbon Tax:** Each campus must pay a tax of $50/ton for each ton of emissions.
+How much would each campus choose to emit? How much would each campus abate? What
+is the total amount of emissions across all four campuses? How much tax revenue is
+generated?
+
+```{r}
+tax = 50
+
+### The amount each campus would chose to emit
+
+ucsb_emissions = ucsb_base - tax/ucsb_slope
+### 40,209 tons/C
+ucla_emissions = ucla_base - tax/ucla_slope
+### 178,718 tons/C
+uci_emissions = uci_base - tax/uci_slope
+### 75,096 tons/C
+ucd_emissions = ucd_base - tax/ucd_slope
+### 143,466 tons/C
+
+
+
+### The amount each campus would abate
+
+ucsb_abate = tax/ucsb_slope
+### 49,791 tons/C
+ucla_abate = tax/ucla_slope
+### 71,282 tons/C
+uci_abate = tax/uci_slope
+### 24,904 tons/C
+ucd_abate = tax/ucd_slope
+### 16,534 tons/C
+
+
+
+### Total amount of emissions across all four campuses
+
+total_emissions = ucsb_emissions + ucla_emissions + uci_emissions + ucd_emissions
+### 437,489 tons/C
+
+
+
+### Tax revenue generated
+ucsb_revenue = tax * ucsb_emissions
+### $2,010,460
+ucla_revenue = tax * ucla_emissions
+### $8,935,877
+uci_revenue = tax * uci_emissions
+### $3,754,812
+ucd_revenue = tax * ucd_emissions
+### $7,173,319
+
+total_revenue = ucsb_revenue + ucla_revenue + uci_revenue + ucd_revenue
+### $21,874,467
+
+```
+
+**3b. Intervention #2: Carbon Ban:** Carbon emissions are banned at each campus. What is the total
+cost of this ban to each campus
+
+```{r}
+
+ucsb_ban = 0.5 * ucsb_base * (ucsb_slope * ucsb_base)
+### $4,067,016
+
+ucla_ban = 0.5 * ucla_base * (ucla_slope * ucla_base)
+### $21919836
+
+uci_ban = 0.5 * uci_base * (uci_slope * uci_base)
+### $10038644
+
+ucd_ban = 0.5 * ucd_base * (ucd_slope * ucd_base)
+### $38709018 
+```
+
+**3c. Intervention #3: Cap without Trade:** Each campus is capped at 100,000 tons of carbon. How
+much abatement would be required by each campus to comply with this cap? What is the
+marginal cost of the last unit of abatement for each campus? What is the total cost of
+abatement for each campus to comply with this new cap?
+
+```{r}
+cap = 100000
+
+### how much abatement required by each campus to comply with cap
+ucsb_cap_notrade = max(0, ucsb_base - cap)
+### 0
+ucla_cap_notrade = max(0, ucla_base - cap)
+### 150,000
+uci_cap_notrade = max(0, uci_base - cap)
+### 0
+ucd_cap_notrade = max(0, ucd_base - cap)
+### 60,000
+
+
+
+### The marginal cost of the last unit of abatement for each campus
+### didn't need to calculate for ucsb and uci because they are under the cap
+ucla_cap_notrade_marginal <- ucla_price(150000)
+### 70.14347
+ucd_cap_notrade_marginal <- ucd_price(60000)
+### 302.4142 
+
+
+
+### The total cost of abatement for each campus to comply with this new cap
+### didn't need to calculate for ucsb and uci because they are under the cap
+ucla_cap_notrade_total <- 0.5 * ucla_cap_notrade_marginal * (250000 - 100000)
+ucla_cap_notrade_total
+### $5,260,761 
+
+ucd_cap_notrade_total <- 0.5 * ucd_cap_notrade_marginal * (160000 - 100000)
+ucd_cap_notrade_total
+### $9,072,426 
+```
+
+
+**3d. Intervention #4: Cap with Trade:** Suppose each campus is capped at 100,000 tons of carbon,
+but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit
+more or less than 100,000. How much would each campus end up emitting after trade? What
+is the equilibrium trading price of carbon permits? For each campus, calculate whether they are
+a buyer or a seller of permits
+
+```{r}
+demand_df_2 <- data.frame(p = seq(0,500,length.out = 100)) %>% 
+  mutate(ucsb_e = pmax(0, ucsb_base - p/ucsb_slope)) %>%
+  mutate(ucla_e = pmax(0, ucla_base - p/ucla_slope)) %>% 
+  mutate(uci_e = pmax(0, uci_base - p/uci_slope)) %>% 
+  mutate(ucd_e = pmax(0, ucd_base - p/ucd_slope)) %>% 
+  mutate(uc_agg_e = ucsb_e + ucla_e + uci_e + ucd_e)
+
+### new p_star! (equilibrium trading price)
+p_star =  spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p,
+                 xout = 4e5)$y
+### 4e5 is the total amount emitted
+
+### The amount each campus emits after trading
+### plugging in the new pstar to find the amount that each campus emits at that price
+demand_df_eq <- data.frame(p = 61.5345) %>% 
+  mutate(ucsb_e = pmax(0, ucsb_base - p/ucsb_slope)) %>%
+  mutate(ucla_e = pmax(0, ucla_base - p/ucla_slope)) %>% 
+  mutate(uci_e = pmax(0, uci_base - p/uci_slope)) %>% 
+  mutate(ucd_e = pmax(0, ucd_base - p/ucd_slope)) %>% 
+  mutate(uc_agg_e = ucsb_e + ucla_e + uci_e + ucd_e)
+demand_df_eq
+
+
+```
+
+#### Question 4
+The central campus decides to go with the “Cap with Trade” approach (Scenario 3d above). An
+altruistic philanthropist buys 50,000 of the permits from the cap and trade market and retires them
+(i.e. not emit the carbon), so only 350,000 tons will be emitted. What is the new trading price among
+the four campuses? How much will it cost the philanthropist to buy and retire these permits?
+
+```{r}
+### new p_star! (equilibrium trading price)
+p_star_new =  spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p,
+                 xout = 350000)$y
+p_star_new
+### 350000 is the new total amount emitted
+### 76.91305
+
+76.91305 * 50000
+### $3845653
+```
+
+
