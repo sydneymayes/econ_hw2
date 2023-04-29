@@ -1,6 +1,6 @@
 ---
 title: "Econ 204: HW 2"
-author: "Sydney Mayes"
+author: "Sydney Mayes, Olivia Somhegyi, Rachel Spellenberg"
 date: "2023-04-29"
 output:  
   html_document:
@@ -15,6 +15,11 @@ library(here)
 library(janitor)
 library(equatiomatic)
 ```
+
+1. For each campus, plot the marginal abatement cost data and estimate a linear regression model with
+zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
+cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
+for the marginal abatement cost curve for each campus.
 
 ```{r}
 
