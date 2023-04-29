@@ -42,13 +42,6 @@ for the marginal abatement cost curve for each campus.
 ```{r}
 # For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
 
-# Plotting the marginal abatement costs data for each school
-ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
-  geom_point() +
-  facet_wrap(~uc, ncol = 2) +
-  scale_color_viridis_d() +
-  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
-  theme_bw()
 
 # Estimating linear regression models with zero intercept for each UC
 # UCSB
@@ -56,21 +49,38 @@ ucsb_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uc
 #p = ucsb_model$coefficients*q
 #extract_eq(ucsb_model, use_coefs = TRUE, coef_digits = 5)
 # p = .001*q
-
+ucsb_slope <- ucsb_model$coefficients
+  
 # UCLA
 ucla_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucla'))
 # ucla_model$coefficients
 # p = .0007*q
+ucla_slope <- ucla_model$coefficients
 
 # UCI
 uci_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uci'))
-uci_model$coefficients
+# uci_model$coefficients
 # p = .002 *q
+uci_slope <- uci_model$coefficients
 
 # UCD
 ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd'))
-ucd_model$coefficients
+# ucd_model$coefficients
 # p = .003 *q
+ucd_slope <- ucd_model$coefficients
+
+
+# Plotting the marginal abatement costs data for each school
+ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
+  geom_point() +
+  geom_abline(slope = ucsb_slope) +
+  geom_abline(slope = ucla_slope) +
+  geom_abline(slope = uci_slope) +
+  geom_abline(slope = ucd_slope) +
+  #facet_wrap(~uc, ncol = 2) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
 
 ```
 
@@ -81,14 +91,215 @@ ucd_model$coefficients
 
 
 #### Question 2
-```{r}
-# Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
 
-# ucsb_demand <- function(E) {
-#   p = 
-# }
+Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
+
+```{r}
+
+# UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons.
+# A = Qbar - Q
+
+ucsb_base = 90000
+ucla_base = 250000
+uci_base = 100000
+ucd_base = 160000
+
+# e = amount of tons emitted
+
+# UCSB
+ucsb_price <- function(e) {
+   p = ucsb_slope*(ucsb_base - e)
+   return(p)
+}
+
+# UCLA
+ucla_price <- function(e) {
+   p = ucla_slope*(ucla_base - e)
+   return(p)
+}
+
+# UCI
+uci_price <- function(e) {
+   p = uci_slope*(uci_base - e)
+   return(p)
+}
+
+# UCD
+ucd_price <- function(e) {
+   p = ucd_slope*(ucd_base - e)
+   return(p)
+ }
+
+demand_df <- data.frame(e = seq(0, 250000, length.out = 100)) %>% 
+  mutate(ucsb_cost = pmax(0, ucsb_price(e))) %>% 
+  mutate(ucla_cost = pmax(0, ucla_price(e))) %>% 
+  mutate(uci_cost = pmax(0, uci_price(e))) %>% 
+  mutate(ucd_cost = pmax(0, ucd_price(e)))
+
+# e = x-axis; y = ucsb_cost
+
+demand_df_long <- pivot_longer(demand_df, cols = ucsb_cost:ucd_cost, names_to = 'campus', values_to = 'marginal_wtp')
+
+gg_demand <- ggplot(data = demand_df_long) +
+  geom_line(aes(x = e, y = marginal_wtp, col = campus)) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Emitted', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
   
+gg_demand
+  
+
+```
+Based on the graph, UCD would pay the most for the first ton emitted.
+
+#### Question 3
+Here you will analyze three alternative interventions for reducing carbon emissions across these four campuses. Please answer the questions about each intervention listed below.
+
+
+a. Intervention #1: Carbon Tax: Each campus must pay a tax of $50/ton for each ton of emissions. How much would each campus choose to emit? How much would each campus abate? What is the total amount of emissions across all four campuses? How much tax revenue is generated?
+```{r}
+# a = qbar - q
+# q = qbar - a
+tax = 50
+ucsb_emissions = ucsb_base - (tax/ucsb_slope)
+
+ucla_emissions = ucla_base - (tax/ucla_slope)
+
+uci_emissions = uci_base - (tax/uci_slope)
+
+ucd_emissions = ucd_base - (tax/ucd_slope)
+
+ucsb_emissions
+
+
+ucsb_abate = tax/ucsb_slope
+ucla_abate = tax/ucla_slope
+uci_abate = tax/uci_slope
+ucd_abate = tax/ucd_slope
+
+total_emissions = ucsb_emissions + ucla_emissions + uci_emissions + ucd_emissions
+
+ucsb_revenue = tax*ucsb_emissions 
+ucla_revenue = tax*ucla_emissions 
+uci_revenue = tax*uci_emissions
+ucd_revenue = tax*ucd_emissions
+
+total_revenue = ucsb_revenue + ucla_revenue + uci_revenue + ucd_revenue
 ```
 
+UCSB would choose to emit 40209.19 tons of carbon and would abate 49790.81 
+UCLA would choose to emit 178717.5 tons of carbon and would abate 71282.47 
+UCI would choose to emit 75096.24 tons of carbon and would abate  24903.76 
+UCI would choose to emit 143466.4 tons of carbon and would abate  16533.62 
+
+Total emissions:  437489.3 tons of carbon
+
+Tax revenue for UCSB:  2010460 dollars
+Tax revenue for UCLA:  8935877 dollars
+Tax revenue for UCI:  3754812  dollars
+Tax revenue for UCD:  7173319  dollars
+Total Tax Revenue =  21874467 dollars
 
 
+
+b. Intervention #2: Carbon Ban: Carbon emissions are banned at each campus. What is the total cost of this ban to each campus?
+```{r}
+ucsb_ban = 0.5 * ucsb_base * (ucsb_slope*ucsb_base) # 4067016 
+ucla_ban = 0.5 * ucla_base * (ucla_slope*ucla_base) # 21919836 
+uci_ban = 0.5 * uci_base * (uci_slope*uci_base) # 10038644 
+ucd_ban = 0.5 * ucd_base * (ucd_slope*ucd_base) # 38709018 
+
+```
+
+Total cost of the ban for UCSB is 4067016 dollars
+Total cost of the ban for UCLA is 21919836 dollars
+Total cost of the ban for UCI is 10038644 dollars
+Total cost of the ban for UCD is 38709018 dollars
+
+
+
+c. Intervention #3: Cap without Trade: Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?
+
+```{r}
+cap = 100000
+ucsb_cap_notrade = max(0, ucsb_base - cap) # 0
+ucla_cap_notrade = max(0, ucla_base - cap) # 150000
+uci_cap_notrade = max(0, uci_base - cap) # 0
+ucd_cap_notrade = max(0, ucd_base - cap) # 60000
+
+```
+
+UCSB doesn't need to abate anything
+UCLA must abate 150000 tons of carbon
+UCI doesn't need to abate anything
+UCD must abate 60000 tons of carbon
+
+
+What is the marginal cost of the last unit of abatement for each campus?
+```{r}
+ucla_cap_notrade_marginal <- ucla_price(150000) #  70.14347 
+ucd_cap_notrade_marginal <- ucd_price(60000) # 302.4142 
+
+```
+
+Marginal cost of the last unit of abatement for UCLA is 70.14347 dollars
+Marginal cost of the last unit of abatement for UCLA is 302.4142 dollars
+UCSB and UCI were under the cap.
+
+What is the total cost of abatement for each campus to comply with this new cap?
+```{r}
+ucla_cap_notrade_total <- 0.5 * ucla_cap_notrade_marginal * (250000-100000) # 5260761 
+ucd_cap_notrade_total <- 0.5 * ucd_cap_notrade_marginal * (160000-100000) #  9072426
+```
+
+The total cost of abatement for UCLA is 5260761 dollars.
+The total cost of abatement for UCLA is 9072426 dollars.
+(No cost for the other campuses)
+
+d. Intervention #4: Cap with Trade: Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.
+
+```{r}
+
+demand_df_2 <- data.frame(p = seq(0, 500, length.out = 100)) %>% 
+  mutate(ucsb_e = pmax(0, ucsb_base-(p/ucsb_slope))) %>% 
+  mutate(ucla_e = pmax(0, ucla_base-(p/ucla_slope))) %>% 
+  mutate(uci_e = pmax(0, uci_base-(p/uci_slope))) %>% 
+  mutate(ucd_e = pmax(0, ucd_base-(p/ucd_slope))) %>% 
+  mutate(uc_agg_e = ucsb_e + ucla_e + uci_e + ucd_e)
+
+p_star <- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 400000)$y
+
+demand_df_eq <- data.frame(p = 61.5345) %>% 
+  mutate(ucsb_e = pmax(0, ucsb_base-(p/ucsb_slope))) %>% 
+  mutate(ucla_e = pmax(0, ucla_base-(p/ucla_slope))) %>% 
+  mutate(uci_e = pmax(0, uci_base-(p/uci_slope))) %>% 
+  mutate(ucd_e = pmax(0, ucd_base-(p/ucd_slope))) %>% 
+  mutate(uc_agg_e = ucsb_e + ucla_e + uci_e + ucd_e)
+
+
+# 100,000 - 28722.95
+# 162273.4 - 100000
+# 100000 - 69351.19
+# 139652.2 - 100000
+
+```
+
+The equilibrium trading price of carbon permits is 61.5345 dollars
+UCSB will emit 28722.95 tons of carbon; they will sell 71277.05 permits
+UCLA will emit 162273.4	tons of carbon; they will buy 62273.4 permits
+UCI will emit 69351.19 tons of carbon; they will sell 30648.81 permits
+UCD will emit 139652.2 tons of carbon; they will buy 39652.2 permits
+
+#### Question 4:
+The central campus decides to go with the “Cap with Trade” approach (Scenario 3d above). An altruistic philanthropist buys 50,000 of the permits from the cap and trade market and retires them (i.e. not emit the carbon), so only 350,000 tons will be emitted. What is the new trading price among the four campuses? How much will it cost the philanthropist to buy and retire these permits?
+
+
+```{r}
+p_star_new <- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)$y
+
+# Cost philanthropist must pay. 
+# 76.91305 * 50000 = 3845652
+```
+
+The new trading price is 76.91305 dollars. 
+It will cost the philanthropist 3845652 dollars. 
