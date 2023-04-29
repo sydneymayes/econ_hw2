@@ -16,10 +16,6 @@ library(janitor)
 library(equatiomatic)
 ```
 
-1. For each campus, plot the marginal abatement cost data and estimate a linear regression model with
-zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
-cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
-for the marginal abatement cost curve for each campus.
 
 ```{r}
 
@@ -38,6 +34,10 @@ long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to =
 
 
 #### Question 1
+For each campus, plot the marginal abatement cost data and estimate a linear regression model with
+zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
+cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
+for the marginal abatement cost curve for each campus.
 
 ```{r}
 # For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
