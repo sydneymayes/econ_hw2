@@ -291,5 +291,15 @@ UCI will emit 69351.19 tons of carbon; they will sell 30648.81 permits
 UCD will emit 139652.2 tons of carbon; they will buy 39652.2 permits
 
 #### Question 4:
+The central campus decides to go with the “Cap with Trade” approach (Scenario 3d above). An altruistic philanthropist buys 50,000 of the permits from the cap and trade market and retires them (i.e. not emit the carbon), so only 350,000 tons will be emitted. What is the new trading price among the four campuses? How much will it cost the philanthropist to buy and retire these permits?
 
 
+```{r}
+p_star_new <- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)$y
+
+# Cost philanthropist must pay. 
+# 76.91305 * 50000 = 3845652
+```
+
+The new trading price is 76.91305 dollars. 
+It will cost the philanthropist 3845652 dollars. 
