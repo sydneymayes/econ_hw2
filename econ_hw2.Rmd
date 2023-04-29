@@ -42,13 +42,6 @@ for the marginal abatement cost curve for each campus.
 ```{r}
 # For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
 
-# Plotting the marginal abatement costs data for each school
-ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
-  geom_point() +
-  facet_wrap(~uc, ncol = 2) +
-  scale_color_viridis_d() +
-  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
-  theme_bw()
 
 # Estimating linear regression models with zero intercept for each UC
 # UCSB
@@ -56,21 +49,38 @@ ucsb_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uc
 #p = ucsb_model$coefficients*q
 #extract_eq(ucsb_model, use_coefs = TRUE, coef_digits = 5)
 # p = .001*q
-
+ucsb_slope <- ucsb_model$coefficients
+  
 # UCLA
 ucla_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucla'))
 # ucla_model$coefficients
 # p = .0007*q
+ucla_slope <- ucla_model$coefficients
 
 # UCI
 uci_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uci'))
-uci_model$coefficients
+# uci_model$coefficients
 # p = .002 *q
+uci_slope <- uci_model$coefficients
 
 # UCD
 ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd'))
-ucd_model$coefficients
+# ucd_model$coefficients
 # p = .003 *q
+ucd_slope <- ucd_model$coefficients
+
+
+# Plotting the marginal abatement costs data for each school
+ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
+  geom_point() +
+  geom_abline(slope = ucsb_slope) +
+  geom_abline(slope = ucla_slope) +
+  geom_abline(slope = uci_slope) +
+  geom_abline(slope = ucd_slope) +
+  #facet_wrap(~uc, ncol = 2) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Abated', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
 
 ```
 
@@ -81,14 +91,65 @@ ucd_model$coefficients
 
 
 #### Question 2
+
+Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
+
 ```{r}
-# Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
 
-# ucsb_demand <- function(E) {
-#   p = 
-# }
+# UCSB = 90,000 tons, UCLA = 250,000 tons, UCI = 100,000 tons, UCD = 160,000 tons.
+# A = Qbar - Q
+
+ucsb_base = 90000
+ucla_base = 250000
+uci_base = 100000
+ucd_base = 160000
+
+# e = amount of tons emitted
+
+# UCSB
+ucsb_price <- function(e) {
+   p = ucsb_slope*(ucsb_base - e)
+   return(p)
+}
+
+# UCLA
+ucla_price <- function(e) {
+   p = ucla_slope*(ucla_base - e)
+   return(p)
+}
+
+# UCI
+uci_price <- function(e) {
+   p = uci_slope*(uci_base - e)
+   return(p)
+}
+
+# UCD
+ucd_price <- function(e) {
+   p = ucd_slope*(ucd_base - e)
+   return(p)
+ }
+
+demand_df <- data.frame(e = seq(0, 250000, length.out = 100)) %>% 
+  mutate(ucsb_cost = pmax(0, ucsb_price(e))) %>% 
+  mutate(ucla_cost = pmax(0, ucla_price(e))) %>% 
+  mutate(uci_cost = pmax(0, uci_price(e))) %>% 
+  mutate(ucd_cost = pmax(0, ucd_price(e)))
+
+# e = x-axis; y = ucsb_cost
+
+demand_df_long <- pivot_longer(demand_df, cols = ucsb_cost:ucd_cost, names_to = 'campus', values_to = 'marginal_wtp')
+
+gg_demand <- ggplot(data = demand_df_long) +
+  geom_line(aes(x = e, y = marginal_wtp, col = campus)) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Emitted', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
   
-```
+gg_demand
+  
 
+```
+Based on the graph, UCD would pay the most for the first ton emitted.
 
 
