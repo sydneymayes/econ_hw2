@@ -50,16 +50,22 @@ ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
 ucsb_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucsb'))
 #p = ucsb_model$coefficients*q
 #extract_eq(ucsb_model, use_coefs = TRUE, coef_digits = 5)
+# p = .001*q
 
 # UCLA
 ucla_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucla'))
+# ucla_model$coefficients
+# p = .0007*q
 
 # UCI
 uci_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'uci'))
+uci_model$coefficients
+# p = .002 *q
 
 # UCD
 ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd'))
-
+ucd_model$coefficients
+# p = .003 *q
 
 ```
 
@@ -73,9 +79,9 @@ ucd_model <- lm(marginal_cost ~ 0 + abatement, data = filter(long_uc, uc == 'ucd
 ```{r}
 # Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
 
-ucsb_demand <- function(E) {
-  p = 
-}
+# ucsb_demand <- function(E) {
+#   p = 
+# }
   
 ```
 
