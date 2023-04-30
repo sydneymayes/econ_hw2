@@ -35,10 +35,7 @@ long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to =
 
 
 ## Question 1
-For each campus, plot the marginal abatement cost data and estimate a linear regression model with
-zero intercept. These estimated linear regressions will be your estimates of the marginal abatement
-cost curve for each campus, which you will use for the remainder of this analysis. Write the equation
-for the marginal abatement cost curve for each campus.
+**Plot the marginal abatement cost data and estimate a linear regression model with zero intercept:** 
 
 ```{r}
 # For each campus, plot the marginal abatement cost data and estimate a linear regression model with zero intercept.1 These estimated linear regressions will be your estimates of the marginal abatement cost curve for each campus, which you will use for the remainder of this analysis. Write the equation for the marginal abatement cost curve for each campus.
@@ -85,6 +82,12 @@ ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
 
 ```
 
+<br/>
+
+**The marginal abatement cost curve equation for each campus:**
+
+<br/>
+
 ##### UCSB: `r equatiomatic::extract_eq(ucsb_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
 ##### UCLA:  `r equatiomatic::extract_eq(ucla_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
 ##### UCI:  `r equatiomatic::extract_eq(uci_model, wrap = TRUE, use_coefs = TRUE, coef_digits = 5)`
@@ -93,7 +96,10 @@ ggplot(data = long_uc, aes(x = abatement, y = marginal_cost, col = uc)) +
 
 ## Question 2
 
-Using your estimated marginal abatement cost curves, together with the baseline emissions, derive each campus’ demand curve for carbon. In other words, how much would each campus be willing to pay to emit the first ton of carbon, the second ton of carbon, etc.2 Plot each campus’ demand curve for emissions on a single graph. Which campus is willing to pay the most for the first ton of carbon emissions?
+**Each campus' demand curve for emissions:**
+
+Based on the graph, UCD would pay the most for the first ton emitted.
+
 
 ```{r}
 
@@ -151,13 +157,29 @@ gg_demand
   
 
 ```
-Based on the graph, UCD would pay the most for the first ton emitted.
+
 
 ## Question 3
-Here you will analyze three alternative interventions for reducing carbon emissions across these four campuses. Please answer the questions about each intervention listed below.
+**Analysis of four alternative interventions for reducing carbon emissions across these four campuses.**
 
+<br/>
 
-a. Intervention #1: Carbon Tax: Each campus must pay a tax of $50/ton for each ton of emissions. How much would each campus choose to emit? How much would each campus abate? What is the total amount of emissions across all four campuses? How much tax revenue is generated?
+**Intervention #1: Carbon Tax of $50/ton:** Each campus must pay a tax of $50/ton for each ton of emissions. How much would each campus choose to emit? How much would each campus abate? What is the total amount of emissions across all four campuses? How much tax revenue is generated?
+
+<br/>
+
+UCSB would choose to emit 40209.19 tons of carbon and would abate 49790.81 
+UCLA would choose to emit 178717.5 tons of carbon and would abate 71282.47 
+UCI would choose to emit 75096.24 tons of carbon and would abate  24903.76 
+UCI would choose to emit 143466.4 tons of carbon and would abate  16533.62 
+
+Total emissions:  437489.3 tons of carbon
+
+Tax revenue for UCSB:  2010460 dollars
+Tax revenue for UCLA:  8935877 dollars
+Tax revenue for UCI:  3754812  dollars
+Tax revenue for UCD:  7173319  dollars
+Total Tax Revenue =  21874467 dollars
 ```{r}
 # a = qbar - q
 # q = qbar - a
@@ -188,22 +210,11 @@ ucd_revenue = tax*ucd_emissions
 total_revenue = ucsb_revenue + ucla_revenue + uci_revenue + ucd_revenue
 ```
 
-UCSB would choose to emit 40209.19 tons of carbon and would abate 49790.81 
-UCLA would choose to emit 178717.5 tons of carbon and would abate 71282.47 
-UCI would choose to emit 75096.24 tons of carbon and would abate  24903.76 
-UCI would choose to emit 143466.4 tons of carbon and would abate  16533.62 
-
-Total emissions:  437489.3 tons of carbon
-
-Tax revenue for UCSB:  2010460 dollars
-Tax revenue for UCLA:  8935877 dollars
-Tax revenue for UCI:  3754812  dollars
-Tax revenue for UCD:  7173319  dollars
-Total Tax Revenue =  21874467 dollars
 
 
 
-b. Intervention #2: Carbon Ban: Carbon emissions are banned at each campus. What is the total cost of this ban to each campus?
+
+**Intervention #2: Carbon Ban:** Carbon emissions are banned at each campus. What is the total cost of this ban to each campus?
 ```{r}
 ucsb_ban = 0.5 * ucsb_base * (ucsb_slope*ucsb_base) # 4067016 
 ucla_ban = 0.5 * ucla_base * (ucla_slope*ucla_base) # 21919836 
@@ -219,7 +230,7 @@ Total cost of the ban for UCD is 38709018 dollars
 
 
 
-c. Intervention #3: Cap without Trade: Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?
+**Intervention #3: Cap without Trade:** Each campus is capped at 100,000 tons of carbon. How much abatement would be required by each campus to comply with this cap? What is the marginal cost of the last unit of abatement for each campus? What is the total cost of abatement for each campus to comply with this new cap?
 
 ```{r}
 cap = 100000
@@ -257,7 +268,7 @@ The total cost of abatement for UCLA is 5260761 dollars.
 The total cost of abatement for UCLA is 9072426 dollars.
 (No cost for the other campuses)
 
-d. Intervention #4: Cap with Trade: Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.
+**Intervention #4: Cap with Trade:** Suppose each campus is capped at 100,000 tons of carbon, but trade is allowed. With trade, total emissions will be 400,000 but some campuses may emit more or less than 100,000. How much would each campus end up emitting after trade? What is the equilibrium trading price of carbon permits? For each campus, calculate whether they are a buyer or a seller of permits.
 
 ```{r}
 
