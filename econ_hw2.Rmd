@@ -16,19 +16,6 @@ library(janitor)
 library(equatiomatic)
 ```
 
-**Baseline Emissions:**
-
-UCSB = 90,000 tons
-
-UCLA = 250,000 tons
-
-UCI = 100,000 tons
-
-UCD = 160,000 tons
-
-
-# {.tabset}
-
 ```{r}
 
 # In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes:
@@ -44,6 +31,17 @@ long_uc <- pivot_longer(carbon_uc, cols = ucsb:ucd, names_to = 'uc', values_to =
 
 ```
 
+**Baseline Emissions:**
+
+UCSB = 90,000 tons
+
+UCLA = 250,000 tons
+
+UCI = 100,000 tons
+
+UCD = 160,000 tons
+
+# {.tabset}
 
 ## Question 1
 **Plot the marginal abatement cost data and estimate a linear regression model with zero intercept:** 
@@ -162,7 +160,7 @@ demand_df <- data.frame(e = seq(0, 250000, length.out = 100)) %>%
 demand_df_long <- pivot_longer(demand_df, cols = ucsb_cost:ucd_cost, names_to = 'campus', values_to = 'marginal_wtp')
 
 gg_demand <- ggplot(data = demand_df_long) +
-  geom_line(aes(x = e, y = marginal_wtp, col = campus)) +
+  geom_line(aes(x = e, y = marginal_wtp, col = campus), size = 1) +
   scale_color_viridis_d() +
   labs(x = 'Tons of Carbon Emitted', y = 'Price in dollars/ton of Carbon' ) +
   theme_bw()
@@ -271,6 +269,18 @@ ucd_ban = 0.5 * ucd_base * (ucd_slope*ucd_base) # 38709018
 ```
 
 #### **Intervention #3: Cap without Trade at 100,000 tons of Carbon:** 
+
+```{r}
+gg_demand_cap <- ggplot(data = demand_df_long) +
+  geom_line(aes(x = e, y = marginal_wtp, col = campus), size = 1) +
+  geom_vline(xintercept = 100000) +
+  scale_color_viridis_d() +
+  labs(x = 'Tons of Carbon Emitted', y = 'Price in dollars/ton of Carbon' ) +
+  theme_bw()
+  
+gg_demand_cap
+```
+
 
 **Abatement required by each campus to comply with cap:**
 
