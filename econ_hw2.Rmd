@@ -16,6 +16,17 @@ library(janitor)
 library(equatiomatic)
 ```
 
+**Baseline Emissions:**
+
+UCSB = 90,000 tons
+
+UCLA = 250,000 tons
+
+UCI = 100,000 tons
+
+UCD = 160,000 tons
+
+
 # {.tabset}
 
 ```{r}
@@ -284,15 +295,15 @@ ucd_cap_notrade = max(0, ucd_base - cap) # 60000
 
 UCSB = 0 dollars (under the cap)
 
-UCLA = 70.14 dollars
+UCLA = 105.22 dollars
 
-UCD = 302.41 dollars
+UCD = 181.45 dollars
 
 UCI = 0 dollars (under the cap)
 
 ```{r}
-ucla_cap_notrade_marginal <- ucla_price(150000) #  70.14347 
-ucd_cap_notrade_marginal <- ucd_price(60000) # 302.4142 
+ucla_cap_notrade_marginal <- ucla_price(100000) # 105.2152  
+ucd_cap_notrade_marginal <- ucd_price(100000) # 181.4485 
 ```
 
 **Total cost of abatement for each campus to comply with new cap:**
@@ -386,9 +397,10 @@ p_star_new <- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)
 
 **Cost for the philanthropist to buy and retire these permits:**
 
-3,845,652 dollars 
+3,076,725 dollars 
 
 ```{r}
 # Cost for philanthropist to buy/retire permits:
-# 76.91305 * 50000 = 3845652
+phil_cost = 61.5345 * 50000
+# $3,076,725
 ```

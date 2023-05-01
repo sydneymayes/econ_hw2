@@ -469,6 +469,11 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(equatiomatic)</code></pre>
+<p><strong>Baseline Emissions:</strong></p>
+<p>UCSB = 90,000 tons</p>
+<p>UCLA = 250,000 tons</p>
+<p>UCI = 100,000 tons</p>
+<p>UCD = 160,000 tons</p>
 <div id="section" class="section level1 tabset">
 <h1 class="tabset"></h1>
 <pre class="r"><code># In this homework you will be simulating alternative approaches for reducing carbon emissions among four UC campuses (UCSB, UCLA, UCI, and UCD). The dataset for this assignment is available in the file “CarbonUC.csv”, available on Canvas. The dataset contains estimates of the marginal cost of reducing carbon emission for each campus for different levels of abatement (in tons of carbon). A few notes:
@@ -703,11 +708,11 @@ ucd_cap_notrade = max(0, ucd_base - cap) # 60000</code></pre>
 <p><strong>Marginal cost of the last unit of abatement for each
 campus:</strong></p>
 <p>UCSB = 0 dollars (under the cap)</p>
-<p>UCLA = 70.14 dollars</p>
-<p>UCD = 302.41 dollars</p>
+<p>UCLA = 105.22 dollars</p>
+<p>UCD = 181.45 dollars</p>
 <p>UCI = 0 dollars (under the cap)</p>
-<pre class="r"><code>ucla_cap_notrade_marginal &lt;- ucla_price(150000) #  70.14347 
-ucd_cap_notrade_marginal &lt;- ucd_price(60000) # 302.4142 </code></pre>
+<pre class="r"><code>ucla_cap_notrade_marginal &lt;- ucla_price(100000) # 105.2152  
+ucd_cap_notrade_marginal &lt;- ucd_price(100000) # 181.4485 </code></pre>
 <p><strong>Total cost of abatement for each campus to comply with new
 cap:</strong></p>
 <p>UCSB = 0 dollars (under the cap)</p>
@@ -775,9 +780,10 @@ only 350,000 tons will be emitted.</strong></p>
 <pre class="r"><code>p_star_new &lt;- spline(x = demand_df_2$uc_agg_e, y = demand_df_2$p, xout = 350000)$y</code></pre>
 <p><strong>Cost for the philanthropist to buy and retire these
 permits:</strong></p>
-<p>3,845,652 dollars</p>
+<p>3,076,725 dollars</p>
 <pre class="r"><code># Cost for philanthropist to buy/retire permits:
-# 76.91305 * 50000 = 3845652</code></pre>
+phil_cost = 61.5345 * 50000
+# $3,076,725</code></pre>
 </div>
 </div>
 
